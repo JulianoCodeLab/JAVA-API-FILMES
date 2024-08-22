@@ -13,11 +13,10 @@ public class ConverteDados {
 
     @Override
     public <T> T obterDados(String json, Class<T> classe) {
-        try {
-            return mapper.readValue(json, classe);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
-    }
-    
-}
+          try {
+                   return mapper.readValue(json, classe);
+          } catch (JsonProcessingException e) {
+                   throw new RuntimeException(e);
+                   }
+          }
+ }

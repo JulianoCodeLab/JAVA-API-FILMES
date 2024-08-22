@@ -9,5 +9,5 @@ package com.juliano.Etapa1.service;
  * @author juliano
  */
 public interface IConverteDados1 {
-    <T> T  obterDados(String json, Class<T> classe);
+          <T> T  obterDados(String json, Class<T> classe);
 }
