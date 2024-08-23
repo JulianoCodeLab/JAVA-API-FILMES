@@ -8,15 +8,6 @@ package com.juliano.Etapa1.service;
  *
  * @author juliano
  */
-public class IConverteDados implements IConverteDados {
-    private ObjectMapper mapper = new ObjectMapper();
-
-    @Override
-    public <T> T obterDados(String json, Class<T> classe) {
-          try {
-                   return mapper.readValue(json, classe);
-          } catch (JsonProcessingException e) {
-                   throw new RuntimeException(e);
-                   }
-          }
+public interface IConverteDados {
+    <T> T  obterDados(String json, Class<T> classe);
 }
