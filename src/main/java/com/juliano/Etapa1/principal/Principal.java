@@ -4,7 +4,6 @@
  */
 package com.juliano.Etapa1.principal;
 
-import com.juliano.Etapa1.model.DadosEpisodio;
 import com.juliano.Etapa1.model.DadosSerie;
 import com.juliano.Etapa1.model.DadosTemporada;
 import com.juliano.Etapa1.model.Episodio;
@@ -17,42 +16,48 @@ import java.util.stream.Collectors;
 
 
 public class Principal {
-
+    private static final String ENDERECO = "https://www.omdbapi.com/?t=";
+    private static final String API_KEY = "&apikey=6585022c";
     private Scanner leitura = new Scanner(System.in);
     private ConsumoApi consumo = new ConsumoApi();
     private ConverteDados conversor = new ConverteDados();
 
-    private final String ENDERECO = "https://www.omdbapi.com/?t=";
-    private final String API_KEY = "&apikey=6585022c";
+    public void exibeMenu() {
+        String nomeSerie = solicitarNomeSerie();
+        DadosSerie dados = obterDadosSerie(nomeSerie);
+        List<DadosTemporada> temporadas = obterTemporadas(nomeSerie, dados.totalTemporadas());
+        exibirTemporadas(temporadas);
+        exibirEpisodios(temporadas);
+        exibirEstatisticas(temporadas);
+    }
+   
 
-    public void exibeMenu(){
-        System.out.println("Digite o nome da serie para busca");
-        var nomeSerie = leitura.nextLine();
-        var json = consumo.obterDados(ENDERECO + nomeSerie.replace(" ", "+") + API_KEY);
-        DadosSerie dados = conversor.obterDados(json, DadosSerie.class);
-        System.out.println(dados);
+    private String solicitarNomeSerie() {
+        System.out.println("Digite o nome da série para busca");
+        return leitura.nextLine();
+    }
 
+    private DadosSerie obterDadosSerie(String nomeSerie) {
+        String json = consumo.obterDados(ENDERECO + nomeSerie.replace(" ", "+") + API_KEY);
+        return conversor.obterDados(json, DadosSerie.class);
+    }
+
+    private List<DadosTemporada> obterTemporadas(String nomeSerie, int totalTemporadas) {
         List<DadosTemporada> temporadas = new ArrayList<>();
-
-        for (int i = 1; i<=dados.totalTemporadas(); i++){
-            json = consumo.obterDados(ENDERECO + nomeSerie.replace(" ", "+") +"&season=" + i + API_KEY);
+        for (int i = 1; i <= totalTemporadas; i++) {
+            String json = consumo.obterDados(ENDERECO + nomeSerie.replace(" ", "+") + "&season=" + i + API_KEY);
             DadosTemporada dadosTemporada = conversor.obterDados(json, DadosTemporada.class);
             temporadas.add(dadosTemporada);
         }
+        return temporadas;
+    }
+
+    private void exibirTemporadas(List<DadosTemporada> temporadas) {
         temporadas.forEach(System.out::println);
+    }
 
-//        for(int i = 0; i < dados.totalTemporadas(); i++){
-//            List<DadosEpisodio> episodiosTemporada = temporadas.get(i).episodios();
-//            for(int j = 0; j< episodiosTemporada.size(); j++){
-//                System.out.println(episodiosTemporada.get(j).titulo());
-//            }
-//        }
-
+    private void exibirEpisodios(List<DadosTemporada> temporadas) {
         temporadas.forEach(t -> t.episodios().forEach(e -> System.out.println(e.titulo())));
-
-        List<DadosEpisodio> dadosEpisodios = temporadas.stream()
-                .flatMap(t -> t.episodios().stream())
-                .collect(Collectors.toList());
 
         List<Episodio> episodios = temporadas.stream()
                 .flatMap(t -> t.episodios().stream()
@@ -60,6 +65,13 @@ public class Principal {
                 .collect(Collectors.toList());
 
         episodios.forEach(System.out::println);
+    }
+
+    private void exibirEstatisticas(List<DadosTemporada> temporadas) {
+        List<Episodio> episodios = temporadas.stream()
+                .flatMap(t -> t.episodios().stream()
+                        .map(d -> new Episodio(t.numero(), d)))
+                .collect(Collectors.toList());
 
         Map<Integer, Double> avaliacoesPorTemporada = episodios.stream()
                 .filter(e -> e.getAvaliacao() > 0.0)
