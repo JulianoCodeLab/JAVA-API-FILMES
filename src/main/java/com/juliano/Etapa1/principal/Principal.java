@@ -25,6 +25,7 @@ public class Principal {
     public void exibeMenu() {
         String nomeSerie = solicitarNomeSerie();
         DadosSerie dados = obterDadosSerie(nomeSerie);
+  
         List<DadosTemporada> temporadas = obterTemporadas(nomeSerie, dados.totalTemporadas());
         exibirTemporadas(temporadas);
         exibirEpisodios(temporadas);
